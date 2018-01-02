@@ -1,4 +1,4 @@
-from activation_function import *
+from common.functions import *
 
 # 3층 신경망 구현하기
 

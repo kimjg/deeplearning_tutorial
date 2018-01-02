@@ -40,3 +40,30 @@ plt.show()
 def f_2(x):
     return x[0]**2 + x[1]**2
 
+
+def numerical_gradients(f, x):
+    h = 1e-4
+    grad = np.zeros_like(x)
+
+    for i in range(x.size):
+        tmp_val = x[i]
+        x[i] = tmp_val + h
+        # 함수가 선형 조건을 만족한다면, x 변수 1개로만 미분해도 된다.
+        fxh1 = f(x)
+        x[i] = tmp_val - h
+        fxh2 = f(x)
+        grad[i] = (fxh1 - fxh2) / (2 * h)
+
+        x[i] = tmp_val
+
+    return grad
+
+def gradient_descent(f, init_x, lr=0.01, step_num=100):
+    x = init_x
+
+    for i in range(step_num):
+        x -= lr * numerical_gradients(f, x)
+
+    return x
+
+
