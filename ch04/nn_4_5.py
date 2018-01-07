@@ -1,6 +1,7 @@
 import numpy as np
 from common.functions import *
 from common.gradient import *
+import matplotlib.pyplot as plt
 
 # 다층 신경망 구현
 
@@ -43,7 +44,7 @@ class TwoLayerNet:
         grads = {}
         grads['W1'] = numerical_gradient(f, self.params['W1'])
         grads['b1'] = numerical_gradient(f, self.params['b1'])
-        grads['W2'] = numerical_gradient(f, self.params['Ww'])
+        grads['W2'] = numerical_gradient(f, self.params['W2'])
         grads['b2'] = numerical_gradient(f, self.params['b1'])
 
         return grads
@@ -58,7 +59,43 @@ x = np.random.rand(100, 784)
 t = np.random.rand(100, 10)
 y = net.predict(x)
 
-grads = net.numerical_gradient(x, t)
+# grads = net.numerical_gradient(x, t)
 
-print(grads.shape)
+# 미니배치 학습 구현
+from dataset.mnist import load_mnist
 
+(x_train, t_train), (x_test, t_test) = load_mnist(normalize=True, one_hot_label=True)
+
+train_loss_list = []
+
+iters_num = 10000
+train_size = x_train.shape[0]
+batch_size = 100
+learning_rate = 0.1
+
+network = TwoLayerNet(input_size=784, hidden_size=100, output_size=10)
+
+for i in range(iters_num):
+
+    if i % 10:
+        print('i is ', i)
+
+    # 미니배치 획득
+    batch_mask = np.random.choice(train_size, batch_size)
+    x_batch = x_train[batch_mask]
+    t_batch = t_train[batch_mask]
+
+    grad = network.numerical_gradient(x_batch, t_batch)
+
+    for key in ('W1', 'b1', 'W2', 'b2'):
+        network.params[key] -= learning_rate * grad[key]
+
+    loss = network.loss(x_batch, t_batch)
+
+    train_loss_list.append(loss)
+
+x_ = np.arange(0, iters_num, 1)
+y_ = train_loss_list
+
+plt.plot(x_, y_)
+plt.show()
